@@ -35,20 +35,53 @@ bool Renderer::AdjustConsoleSize()
 	// we are setting window height to m_renderBounds.y + 1 to avoid game screen jumping up and down because of 
 	// inserting last character from m_canvas to console window (then cursor moves to new line that is beyond 
 	// rendering area and when we invoke setCursorPosition(0, 0) all game screen jumps one character up)
-	COORD bufSize = { (SHORT)m_renderBounds.x, (SHORT)m_renderBounds.y + 1 };
-    if (!SetConsoleScreenBufferSize(m_hout, bufSize))
-    {
-        std::printf("Erro unable to set console screen buffer size to %hux%hu\n", bufSize.X, bufSize.Y);
-        return false;
-    }
+	
+	CONSOLE_SCREEN_BUFFER_INFO  info;
+	GetConsoleScreenBufferInfo(m_hout, &info);
 
-	SMALL_RECT consoleWindowRect = { 0, 0, (SHORT)m_renderBounds.x - 1, (SHORT)m_renderBounds.y};
-    if (!SetConsoleWindowInfo(m_hout, TRUE, &consoleWindowRect))
-    {
-        std::printf("Erro unable to set console window size to %hux%hu\n",
-            consoleWindowRect.Right, consoleWindowRect.Bottom);
-        return false;
-    }
+	//our desired buffsize and windowRect size.
+	COORD bufSize = { (SHORT)m_renderBounds.x, (SHORT)m_renderBounds.y + 1 };
+	SMALL_RECT consoleWindowRect = { 0, 0, (SHORT)m_renderBounds.x - 1, (SHORT)m_renderBounds.y };
+
+	// If the Current Buffer is Larger than what we want, Resize the 
+	// Console Window First, then the Buffer 
+	if ((DWORD)info.dwSize.X * info.dwSize.Y > (DWORD)bufSize.X * bufSize.Y)
+	{
+		if (!SetConsoleWindowInfo(m_hout, TRUE, &consoleWindowRect))
+		{
+			std::printf("Error unable to set console window size to %hux%hu\n",
+				consoleWindowRect.Right, consoleWindowRect.Bottom);
+			return false;
+		}
+
+		if (!SetConsoleScreenBufferSize(m_hout, bufSize))
+		{
+			std::printf("Error unable to set console screen buffer size to %hux%hu\n", bufSize.X, bufSize.Y);
+			return false;
+		}
+	}
+	// If the Current Buffer is Smaller than what we want, Resize the 
+	// Buffer First, then the Console Window 
+	else if ((DWORD)info.dwSize.X * info.dwSize.Y < (DWORD)bufSize.X * bufSize.Y)
+	{
+		if (!SetConsoleScreenBufferSize(m_hout, bufSize))
+		{
+			std::printf("Error unable to set console screen buffer size to %hux%hu\n", bufSize.X, bufSize.Y);
+			return false;
+		}
+		
+		if (!SetConsoleWindowInfo(m_hout, TRUE, &consoleWindowRect))
+		{
+			std::printf("Error unable to set console window size to %hux%hu\n",
+				consoleWindowRect.Right, consoleWindowRect.Bottom);
+			return false;
+		}
+	}
+	else
+	{
+		// If the Current Buffer *is* the Size we want, Don't do anything! 
+	}
+
     return true;
 }
 

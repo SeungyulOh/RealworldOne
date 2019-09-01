@@ -1,4 +1,7 @@
 ## Ignore Files ##
 
 .vs/
+SpaceRaiders/x64/
+SpaceRaiders/SpaceRaiders.vcxproj.user
+x64/
 
