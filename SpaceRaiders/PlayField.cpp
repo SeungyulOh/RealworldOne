@@ -86,11 +86,11 @@ void PlayField::WaitBetweenIterations()
 void PlayField::SetupGame()
 {
     // Populate aliens
-	SpawnAliens(m_startingAliensCount, m_isSpecialFeatureEnabled);
+	SpawnAliens(0/*m_startingAliensCount*/, m_isSpecialFeatureEnabled);
     // Add player
     AddPlayerObject(Vector2D(40, 27));
     // Add wall blocks
-    SpawnWallBlocks(10);
+    SpawnWallBlocks(100);
 }
 
 void PlayField::Update()
@@ -115,7 +115,7 @@ void PlayField::Update()
 		// Check collisions with already updated objects
 		HandleCollisions(it);
 	}
-	HandleSpawningNewObjects();
+	//HandleSpawningNewObjects();
 	HandlePowerUpes();
 	ApplyObjectsCollectionChanges();
 	UpdateGameInfo();

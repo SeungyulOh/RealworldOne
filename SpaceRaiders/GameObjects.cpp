@@ -263,7 +263,20 @@ void Alien::Update(PlayField& world)
 	{
 		m_energy += getRandFloat(0, 2 * m_maxUpdateRate);
 		if (m_energy >= m_transformEnergy)
-			Transform();
+		{
+			//according to rules, actual transformation should happens with 50% prob.
+			bool bSuccessTransform = getRandInt(0, 1) == 0;
+			if (bSuccessTransform)
+			{
+				Transform();
+			}
+			else
+			{
+				//if transformation fails, start over again.
+				m_energy = 0.f;
+			}
+		}
+			
 	}
 
 	if (getRandFloat(0.f, 1.f) < m_fireRateBorder && world.CanNewLasersBeSpawned(RI_AlienLaser, 1))
@@ -317,7 +330,8 @@ void PlayerShip::Update(PlayField& world)
 		m_collisionPoints.push_back(Vector2D((float)xLast, m_pos.y));
 	}
 	int shotsCount = m_useTripleShots ? 3 : 1;
-	if (world.GetControllerInput().Fire() && world.CanNewLasersBeSpawned(RI_PlayerLaser, shotsCount))
+	//player randomly shoot laser shots depending on fire rate (m_fireRateBorder)
+	if (getRandFloat(0.f, 1.f) < m_fireRateBorder && world.CanNewLasersBeSpawned(RI_PlayerLaser, shotsCount))
 	{
 		//Spawn laser
 		world.SpawnLaser(new PlayerLaser(this));

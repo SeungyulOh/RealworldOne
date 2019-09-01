@@ -195,6 +195,7 @@ class PlayerShip : public SpaceShip
 {
 protected:
 	float m_movementSpeed = 1.f;
+	float m_fireRateBorder = 0.5f;
 	bool m_useTripleShots = false;
 	virtual void OnObjectDestroyed(GameObject& attacker, PlayField& world, const Vector2D& collisionPoint);
 	std::vector<Vector2D> m_collisionPoints;
